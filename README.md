@@ -1,0 +1,89 @@
+# Product Feed Processor
+
+This program processes a product XML feed and sends product batches to an external service.
+
+The program is designed to handle very large XML feeds efficiently while respecting the external API size constraint of 5MB per request.
+
+# Features
+
+• Streaming XML parsing (memory efficient)  
+• Automatic batching up to 5MB payload size  
+• Concurrent API requests with controlled parallelism
+
+# Installation
+
+Install dependencies
+
+    npm install
+
+# Running the Program
+
+    npm start
+
+The program will:
+
+1. Execute the file `src/assignment.js`
+2. Stream the XML file `static/feed.xml`
+3. Extract id, title, description for each product
+4. Batch products into JSON arrays up to 5MB
+5. Send batches to the external service
+
+Optional Configuration:
+
+The application can be configured using environment variables.
+
+1. `CONCURRENCY`
+   Controls how many batches are processed in parallel when sending data to the external service.
+
+   Default: 3
+
+   Example:
+   `CONCURRENCY=5 npm start`
+
+   This will allow up to 5 batches to be processed concurrently.
+
+2. `MAX_BATCH_SIZE`
+   Controls the maximum allowed batch size sent to the external service.
+
+   Default: 5MB (5 _ 1024 _ 1024 bytes)
+
+   Example:
+   `MAX_BATCH_SIZE=7 npm start`
+
+# Running the Tests
+
+    npm test
+
+# Architecture
+
+Pipeline:
+
+XML Stream → Product Extraction → Batch Builder → Async Queue → External Service
+
+Each stage is isolated into its own module to keep responsibilities clear.
+
+# Memory Efficiency
+
+The XML file is processed using a streaming parser instead of loading the entire file into memory. This allows the program to process very large feeds (hundreds of MB or more).
+
+# Batch Size Enforcement
+
+The external service requires that each batch must not exceed 5MB.
+
+To enforce this:
+
+• Each product object is serialized  
+• Its byte size is calculated using Buffer.byteLength  
+• Products are added to the batch until the limit is reached
+
+# Concurrency Control
+
+External service calls are processed through a queue using limited concurrency.
+
+This prevents:
+
+• Overloading the external service
+• Excessive memory usage
+• Too many simultaneous network requests
+
+The concurrency limit is currently set to 3 but you can configure using environment variable `CONCURRENCY`.
