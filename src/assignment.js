@@ -1,8 +1,8 @@
 const fs = require("fs");
 const sax = require("sax");
 const path = require("path");
-const { BatchBuilder } = require("./utils/batcher");
-const { enqueueBatch, waitForQueueDrain } = require("./utils/queue");
+const { BatchBuilder } = require("./batch/batcher");
+const { enqueueBatch, waitForQueueDrain } = require("./queue/queue");
 
 const parser = sax.createStream(true);
 

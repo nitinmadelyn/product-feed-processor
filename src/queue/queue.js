@@ -1,6 +1,6 @@
 const pLimit = require("p-limit").default;
-const externalService = require("./externalService.js");
-const { getMaxBatchSize, getConcurrency } = require("./getEnvironmentVar.js");
+const externalService = require("../services/externalService.js");
+const { getMaxBatchSize, getConcurrency } = require("../config/environment.js");
 
 const service = externalService();
 const MAX_BATCH_SIZE = getMaxBatchSize();

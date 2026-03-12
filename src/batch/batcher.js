@@ -1,4 +1,4 @@
-const { getMaxBatchSize } = require("./getEnvironmentVar.js");
+const { getMaxBatchSize } = require("../config/environment.js");
 const MAX_BATCH_SIZE = getMaxBatchSize();
 
 class BatchBuilder {
