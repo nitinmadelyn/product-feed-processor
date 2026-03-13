@@ -4,7 +4,7 @@ const MAX_BATCH_SIZE = getMaxBatchSize();
 class BatchBuilder {
     constructor(onBatchReady) {
         this.batch = [];
-        this.size = 2; // accounts for []
+        this.currentBatchSize = 2; // accounts for JSON array brackets: []
         this.onBatchReady = onBatchReady;
     }
 
@@ -15,12 +15,12 @@ class BatchBuilder {
         // add 1 byte for comma if batch already has items
         const commaSize = this.batch.length > 0 ? 1 : 0;
 
-        if (this.size + productSize + commaSize > MAX_BATCH_SIZE) {
+        if (this.currentBatchSize + productSize + commaSize > MAX_BATCH_SIZE) {
             await this.flush();
         }
 
         this.batch.push(product);
-        this.size += productSize + commaSize;
+        this.currentBatchSize += productSize + commaSize;
     }
 
     async flush() {
@@ -29,7 +29,7 @@ class BatchBuilder {
         const batchToSend = this.batch;
 
         this.batch = [];
-        this.size = 2;
+        this.currentBatchSize = 2;
 
         await this.onBatchReady(batchToSend);
     }
