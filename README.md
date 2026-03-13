@@ -87,3 +87,38 @@ This prevents:
 • Too many simultaneous network requests
 
 The concurrency limit is currently set to 3 but you can configure using environment variable `CONCURRENCY`.
+
+# Improvements for Production
+
+Below are a few improvements that should be considered before deploying this solution to a production environment:
+
+- Retry logic  
+  Add retry logic with exponential backoff when the external service fails due to transient errors such as network issues or temporary service unavailability.
+
+- Observability and monitoring  
+  Introduce structured logging and metrics to track key indicators such as:
+  - number of products processed
+  - number of batches sent
+  - external service latency
+  - error rate
+
+- Dead Letter Queue (DLQ)  
+  If a batch fails even after multiple retries, move it to a dead letter queue so it can be inspected and reprocessed later.
+
+- Backpressure handling  
+  If the external service becomes slow or unavailable, temporarily slow down or pause ingestion to prevent the queue from growing indefinitely.
+
+- Rate limiting  
+  Implement rate limiting to ensure the external API is not overwhelmed or to comply with API provider limits.
+
+- Horizontal scalability  
+  For very large feeds or high traffic scenarios, processing could be distributed across multiple workers or containers.
+
+- Input validation  
+  Validate product fields before batching to ensure malformed or incomplete data does not propagate to downstream systems.
+
+- Alerting  
+  Configure alerts for operational issues such as:
+  - high failure rate when calling the external service
+  - increasing queue backlog
+  - unusually slow processing times
