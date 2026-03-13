@@ -1,3 +1,14 @@
+/**
+ * Product feed processor
+ *
+ * Pipeline:
+ * XML stream → SAX parser → Product extraction → Batch builder → Queue → External service
+ *
+ * The feed is processed in a streaming manner to avoid loading the entire file into memory.
+ * Products are grouped into batches with a configurable max payload size & concurrency and sent to
+ * the external service with limited concurrency.
+ */
+
 const fs = require("fs");
 const sax = require("sax");
 const path = require("path");
@@ -26,12 +37,22 @@ parser.on("text", (text) => {
     const value = text.trim();
     if (!value) return;
 
+    // Remove XML namespace prefix (e.g., g:id → id)
     const tag = currentTag.split(":").pop();
-    if (tag === "id") currentProduct.id = value;
-    if (tag === "title") currentProduct.title = value;
-    if (tag === "description") currentProduct.description = value;
+    switch (tag) {
+        case "id":
+            currentProduct.id = value;
+            break;
+        case "title":
+            currentProduct.title = value;
+            break;
+        case "description":
+            currentProduct.description = value;
+            break;
+    }
 });
 
+// Extract required fields from <item> tags and send them to the batch builder
 parser.on("closetag", async (tag) => {
     if (tag === "item" && currentProduct) {
         await batchBuilder.addProduct({
@@ -54,4 +75,8 @@ parser.on("end", async () => {
 });
 
 const xmlFilePath = path.join(__dirname, "static", "feed.xml");
+if (!fs.existsSync(xmlFilePath)) {
+    console.error("Feed file not found:", xmlFilePath);
+    process.exit(1);
+}
 fs.createReadStream(xmlFilePath).pipe(parser);

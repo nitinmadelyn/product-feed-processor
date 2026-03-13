@@ -7,11 +7,12 @@ const MAX_BATCH_SIZE = getMaxBatchSize();
 const CONCURRENCY = getConcurrency();
 const limit = pLimit(CONCURRENCY);
 
-const tasks = [];
+const pendingTasks = [];
 
 function enqueueBatch(batch) {
     const payload = JSON.stringify(batch);
 
+    // Defensive check to ensure serialization did not exceed the allowed payload size
     if (Buffer.byteLength(payload, "utf8") > MAX_BATCH_SIZE) {
         throw new Error("Batch size exceeded after serialization");
     }
@@ -22,13 +23,13 @@ function enqueueBatch(batch) {
             console.error("External service failed:", err.message);
         }
     });
-    tasks.push(task);
+    pendingTasks.push(task);
 
     return task;
 }
 
 async function waitForQueueDrain() {
-    await Promise.all(tasks);
+    await Promise.all(pendingTasks);
 }
 
 module.exports = {
