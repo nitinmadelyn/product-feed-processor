@@ -2,13 +2,13 @@
 
 This program processes a product XML feed and sends product batches to an external service.
 
-The program is designed to handle very large XML feeds efficiently while respecting the external API size constraint of 5MB per request.
+The program is designed to handle very large XML feeds efficiently while respecting the external service size constraint of 5MB per request.
 
 # Features
 
 • Streaming XML parsing (memory efficient)  
 • Automatic batching up to 5MB payload size  
-• Concurrent API requests with controlled parallelism
+• Concurrent requests with controlled parallelism
 
 # Installation
 
@@ -109,7 +109,7 @@ Below are a few improvements that should be considered before deploying this sol
   If the external service becomes slow or unavailable, temporarily slow down or pause ingestion to prevent the queue from growing indefinitely.
 
 - Rate limiting  
-  Implement rate limiting to ensure the external API is not overwhelmed or to comply with API provider limits.
+  Implement rate limiting to ensure the external service is not overwhelmed or to comply with provider limits.
 
 - Horizontal scalability  
   For very large feeds or high traffic scenarios, processing could be distributed across multiple workers or containers.
